@@ -221,17 +221,18 @@ curl_retrieve()
 core_dependency_requires '*' tr
 curl_iterateHeaders()
 {
-	local callback="$1"
-	shift 1
-	
 	local mixedCaseHeaderName
 	local headerName
 	local headerValue
+	local callback
 	
 	while IFS=': ' read -r mixedCaseHeaderName headerValue
 	do
 		headerName="$(tr 'A-Z' 'a-z' "$mixedCaseHeaderName")"
-		$callback "$headerName" "$headerValue"
+		for callback in "$@"
+		do
+			$callback "$headerName" "$headerValue"
+		done
 	done
 }
 
