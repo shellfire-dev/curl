@@ -231,7 +231,7 @@ curl_iterateHeaders()
 		headerName="$(tr 'A-Z' 'a-z' "$mixedCaseHeaderName")"
 		for callback in "$@"
 		do
-			$callback "$headerName" "$headerValue"
+			$callback
 		done
 	done
 }
