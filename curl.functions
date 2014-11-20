@@ -233,7 +233,7 @@ curl_iterateHeaders()
 		do
 			$callback
 		done
-	done
+	done <"$curl_parsedHeadersFilePath"
 }
 
 core_usesIn version
