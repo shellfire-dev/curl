@@ -228,7 +228,7 @@ curl_iterateHeaders()
 	
 	while IFS=': ' read -r mixedCaseHeaderName headerValue
 	do
-		headerName="$(printf '%s' "$mixedCaseHeaderName" | tr 'A-Z' 'a-z')"
+		headerName="$(printf '%s' "$mixedCaseHeaderName" | tr 'a-z' 'A-Z')"
 		for callback in "$@"
 		do
 			$callback
