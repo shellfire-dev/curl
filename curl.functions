@@ -218,6 +218,16 @@ curl_retrieve()
 	tail -n +2 "$curl_outputHeadersFilePath" | tr -d '\r' >"$curl_parsedHeadersFilePath"
 }
 
+curl_writeConfigValue()
+{
+	# Values in double quotes have \escape sequences expanded; without double quotes, whitespaces aren't allowed. One can't win.
+	if [ $# -eq 2 ]; then
+		printf '%s = "%s"\n' "$1" "$2"
+	else
+		printf '%s\n' "$1"
+	fi
+}
+
 core_dependency_requires '*' tr
 curl_iterateHeaders()
 {
@@ -284,16 +294,6 @@ _curl_initialise()
 		curl_supportsRetries='yes'
 	else
 		curl_supportsRetries='no'
-	fi
-}
-
-curl_writeConfigValue()
-{
-	# Values in double quotes have \escape sequences expanded; without double quotes, whitespaces aren't allowed. One can't win.
-	if [ $# -eq 2 ]; then
-		printf "%s = "%s"\n" "$1" "$2"
-	else
-		printf '%s\n' "$1"
 	fi
 }
 
