@@ -214,11 +214,6 @@ curl_retrieve()
 		} 1>&2
 	fi
 	
-	# 3 kinds of line:-
-	# Response x1
-	# Header xN, N=0+
-	# End, x1
-	
 	_curl_retrieve_terminatePreviousHeaderLineIfPending()
 	{
 		if [ $headerLinePending -eq 1 ]; then
@@ -233,7 +228,7 @@ curl_retrieve()
 	local headerExpectation=0
 	local headerLinePending=0
 	{
-		while IFS="$(printf '\r')" read -r headerLine
+		while IFS="$_curl_CR" read -r headerLine
 		do
 			case $headerExpectation in
 			
@@ -274,8 +269,7 @@ curl_retrieve()
 			
 			esac
 		
-		
-		done
+		done <"$curl_outputHeadersFilePath"
 		
 		_curl_retrieve_terminatePreviousHeaderLineIfPending
 		
@@ -328,6 +322,7 @@ _curl_initialise()
 	curl_retryDelay=0
 	curl_retryMaximumDelay=30
 
+	_curl_CR="$(printf '\r')"
 	_curl_HT="$(printf '\t')"
 	_curl_headerIFS=": $_curl_HT"
 	
