@@ -214,8 +214,72 @@ curl_retrieve()
 		} 1>&2
 	fi
 	
-	IFS=' ' read -r curl_httpVersion curl_httpCode curl_httpDescription <"$curl_outputHeadersFilePath"
-	tail -n +2 "$curl_outputHeadersFilePath" | tr -d '\r' >"$curl_parsedHeadersFilePath"
+	# 3 kinds of line:-
+	# Response x1
+	# Header xN, N=0+
+	# End, x1
+	
+	_curl_retrieve_terminatePreviousHeaderLineIfPending()
+	{
+		if [ $headerLinePending -eq 1 ]; then
+			printf '\n'
+			headerLinePending=0
+		fi
+	}
+	
+	# https://tools.ietf.org/html/rfc7230#section-3.2.4
+	# Designed to handle 100 Continue, with multiple responses
+	# Character encoding is a mess. Historically, we were supposed to use ISO-8859-1 (ie Latin1) with RFC 2047 encoding.
+	local headerExpectation=0
+	local headerLinePending=0
+	{
+		while IFS="$(printf '\r')" read -r headerLine
+		do
+			case $headerExpectation in
+			
+				0)
+					IFS='' read -r curl_httpVersion curl_httpStatusCode curl_httpReasonPhrase <<-EOF
+						${line}
+					EOF
+					# Resets headers
+					printf '' >"$curl_parsedHeadersFilePath"
+					headerExpectation=1
+				;;
+			
+				1)
+					# look for folded lines
+					case "$core_variable_firstCharacter" in
+						
+						# End of headers (empty line)
+						'')
+							_curl_retrieve_terminatePreviousHeaderLineIfPending
+							headerExpectation=0
+						;;
+						
+						# obs-fold (continuation line, deprecated but still allowed)
+						' '|"$_curl_HT")
+							printf ' %s' "$line"
+						;;
+					
+						*)
+							_curl_retrieve_terminatePreviousHeaderLineIfPending
+							printf '%s' "$line"
+							headerLinePending=1
+						;;
+					
+					esac
+				
+					printf '%s\n' "$line" >>"$curl_parsedHeadersFilePath"
+				;;
+			
+			esac
+		
+		
+		done
+		
+		_curl_retrieve_terminatePreviousHeaderLineIfPending
+		
+	} >"$curl_parsedHeadersFilePath"
 }
 
 curl_writeConfigValue()
@@ -236,9 +300,16 @@ curl_iterateHeaders()
 	local headerValue
 	local callback
 	
-	while IFS=': ' read -r mixedCaseHeaderName headerValue
+	local headerField
+	local fieldName
+	local fieldValue
+	while IFS='' read -r headerField
 	do
-		headerName="$(printf '%s' "$mixedCaseHeaderName" | tr 'a-z' 'A-Z')"
+		# Mixed case, arggh
+		fieldName="${headerField%%:*}"
+		fieldValue="$(core_variable_trimSpaceAndHorizontalTab "${headerField#*:}")"
+		
+		fieldName="$(printf '%s' "$fieldName" | tr 'a-z' 'A-Z')"
 		for callback in "$@"
 		do
 			$callback
@@ -256,6 +327,9 @@ _curl_initialise()
 	curl_retries=10
 	curl_retryDelay=0
 	curl_retryMaximumDelay=30
+
+	_curl_HT="$(printf '\t')"
+	_curl_headerIFS=": $_curl_HT"
 	
 	local TMP_FILE
 	
