@@ -14,7 +14,7 @@ core_usesIn urlencode
 #  * curl_POST (mandatory)
 
 core_dependency_requires '*' curl cat
-curl_retrieve()
+curl_http()
 {
 	# Use 'user:password' for Basic Auth.  Specify just 'user' for password prompting with Basic Auth. Use 'token:x-oauth-basic' for OAuth authentication. Use ':' for NTLM (--ntlm) or Kerberos5 (--negotiate).
 	# Use '' for no authentication, or to use authentication via .netrc
@@ -144,7 +144,7 @@ curl_retrieve()
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
 		core_variable_array_append options --stderr "$curl_stderrFilePath"
-		core_variable_array_append options --write-out '%{http_code}\t%{url_effective}\t%{ssl_verify_result}\t%{http_connect}\t%{time_total}\t%{size_download}\t%{speed_download}\t%{num_redirects}\n'
+		core_variable_array_append options --write-out '%{http_code}\t%{url_effective}\t%{ssl_verify_result}\t%{time_total}\t%{size_download}\t%{speed_download}\t%{num_redirects}\n'
 	
 		if [ "$(core_init_verbosity)" -gt 2 ]; then
 			core_variable_array_append options --trace-time --trace-ascii "$curl_traceAsciiFilePath"
@@ -191,7 +191,7 @@ curl_retrieve()
 	core_variable_array_append options --config "$curl_secureParametersFilePath"
 	
 	set +e
-	core_variable_array_passToFunctionAsArguments options curl
+	core_variable_array_passToFunctionAsArguments options curl 1>"$curl_stdoutFilePath"
 	set -e
 	# Worse than a 404 or even a 5xx; something terrible has happened (eg broken TCP connection after retries)
 	local curl_exitCode=$?
@@ -243,9 +243,8 @@ curl_retrieve()
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
 		{
-			printf '%s\n' "stderr:-"
-			cat "$curl_stderrFilePath"
-			printf '\n'
+			core_message INFO "curl write-out: $(<"$curl_stdoutFilePath")"
+			core_message INFO "curl stderr (usually empty): $(<"$curl_stderrFilePath")"
 	
 			if [ "$(core_init_verbosity)" -gt 2 ]; then
 				printf '%s\n' "ascii-trace:-"
@@ -376,6 +375,9 @@ _curl_initialise()
 	
 	core_temporaryFiles_newFileToRemoveOnExit
 	curl_parsedHeadersFilePath="$TMP_FILE"
+	
+	core_temporaryFiles_newFileToRemoveOnExit
+	curl_stdoutFilePath="$TMP_FILE"
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
 		
