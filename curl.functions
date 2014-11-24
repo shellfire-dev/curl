@@ -196,8 +196,49 @@ curl_retrieve()
 	# Worse than a 404 or even a 5xx; something terrible has happened (eg broken TCP connection after retries)
 	local curl_exitCode=$?
 	
+	# http://curl.haxx.se/libcurl/c/libcurl-errors.html
 	if [ $curl_exitCode -ne 0 ]; then
-		core_exitError $core_commandLine_exitCode_UNAVAILABLE "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode'"
+	
+		case $curl_exitCode in
+		
+			# 'Never' events (22 should be impossible unless config has been messed up)
+			1|2|3|4|22|27|41|42|43|48|53|54)
+				core_exitError $core_commandLine_exitCode_SOFTWARE "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' ('never' event)."
+			;;
+			
+			8|10|11|13|14|16|17|18|19|25|30|31|34|47|49|51|52)
+				core_exitError $core_commandLine_exitCode_PROTOCOL "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (protocol problems)."
+			;;
+			
+			35|58)
+				core_exitError $core_commandLine_exitCode_NOPERM "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (access denied)."
+			;;
+			
+			# Transient
+			5|6|7|9|12|15|21|28|45|55|56)
+				core_exitError $core_commandLine_exitCode_UNAVAILABLE "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (transient issue)."
+			;;
+			
+			# IO
+			23|26|37)
+				core_exitError $core_commandLine_exitCode_IOERR "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (IO problems)."
+			;;
+			
+			# Might legitimately occur if probing a server
+			33)
+				core_exitError $core_commandLine_exitCode_PROTOCOL "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (Range Error)."
+			;;
+			
+			# Might legitimately occur if trying to resume a download, and the resource has changed in the meantime
+			36)
+				core_exitError $core_commandLine_exitCode_PROTOCOL "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (Download Resume Error)."
+			;;
+			
+			*)
+				core_exitError $core_commandLine_exitCode_FAILURE "Could not retrieve url '$url' using curl. Curl exit code was '$curl_exitCode' (unknown cause)."
+			;;
+		esac
+		
 	fi
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
