@@ -130,7 +130,7 @@ curl_http()
 	fi
 	
 	# Continue-At is valid for any HTTP verb, although it is used mostly with PUT and less commonly with POST and PATCH
-	if core_variable_isSet curl_range; then
+	if core_variable_isSet curl_continueAt; then
 		if [ -n "$curl_continueAt" ]; then
 			core_variable_array_append options --continue-at "$curl_continueAt"
 		fi
@@ -154,7 +154,7 @@ curl_http()
 	# We pass credentials, URLs and Headers via a temporary, user-only config file so that sensitive information (eg auth tokens in query strings) aren't exposed
 	# Of course, nothing stops one used .netrc and/or other config files to do this, too
 	{
-		curl_writeConfigValue url "$url"
+		_curl_writeConfigValue url "$url"
 	
 		case "$authentication" in
 			
@@ -166,8 +166,8 @@ curl_http()
 			
 			# We do not support GSS-Level
 			basic|digest|ntlm|negotiate)
-				curl_writeConfigValue "$authentication"
-				curl_writeConfigValue user "$credentials"
+				_curl_writeConfigValue "$authentication"
+				_curl_writeConfigValue user "$credentials"
 			;;
 			
 		esac
@@ -182,9 +182,9 @@ curl_http()
 			shift 2
 		
 			if [ -z "$headerValue" ]; then
-				curl_writeConfigValue header "${headerName};"
+				_curl_writeConfigValue header "${headerName};"
 			else
-				curl_writeConfigValue header "${headerName}: ${headerValue}"
+				_curl_writeConfigValue header "${headerName}: ${headerValue}"
 			fi
 		done
 	}>"$curl_secureParametersFilePath"
@@ -314,7 +314,7 @@ curl_http()
 	} >"$curl_parsedHeadersFilePath"
 }
 
-curl_writeConfigValue()
+_curl_writeConfigValue()
 {
 	# Values in double quotes have \escape sequences expanded; without double quotes, whitespaces aren't allowed. One can't win.
 	if [ $# -eq 2 ]; then
@@ -353,12 +353,26 @@ core_usesIn version
 core_dependency_requires '*' curl awk
 _curl_initialise()
 {
-	curl_userAgent="$1"
+	if core_variable_isUnset curl_userAgent; then
+		curl_userAgent="$1"
+	fi
+	
 	# Default is 50. -1 makes it limitless.
-	curl_maximumRedirects=5
-	curl_retries=10
-	curl_retryDelay=0
-	curl_retryMaximumDelay=30
+	if core_variable_isUnset curl_maximumRedirects; then
+		curl_maximumRedirects=5
+	fi
+	
+	if core_variable_isUnset curl_retries; then
+		curl_retries=10
+	fi
+	
+	if core_variable_isUnset curl_retryDelay; then
+		curl_retryDelay=0
+	fi
+	
+	if core_variable_isUnset curl_retryMaximumDelay; then
+		curl_retryMaximumDelay=30
+	fi
 
 	_curl_CR="$(printf '\r')"
 	_curl_HT="$(printf '\t')"
