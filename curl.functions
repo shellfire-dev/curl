@@ -253,12 +253,12 @@ curl_retrieve()
 						
 						# obs-fold (continuation line, deprecated but still allowed)
 						' '|"$_curl_HT")
-							printf ' %s' "$line"
+							printf ' %s' "$headerLine"
 						;;
 					
 						*)
 							_curl_retrieve_terminatePreviousHeaderLineIfPending
-							printf '%s' "$line"
+							printf '%s' "$headerLine"
 							headerLinePending=1
 						;;
 					
