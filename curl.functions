@@ -263,8 +263,6 @@ curl_retrieve()
 						;;
 					
 					esac
-				
-					printf '%s\n' "$line" >>"$curl_parsedHeadersFilePath"
 				;;
 			
 			esac
