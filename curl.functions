@@ -233,8 +233,8 @@ curl_retrieve()
 			case $headerExpectation in
 			
 				0)
-					IFS='' read -r curl_httpVersion curl_httpStatusCode curl_httpReasonPhrase <<-EOF
-						${line}
+					IFS=' ' read -r curl_httpVersion curl_httpStatusCode curl_httpReasonPhrase <<-EOF
+						${headerLine}
 					EOF
 					# Resets headers
 					printf '' >"$curl_parsedHeadersFilePath"
@@ -243,7 +243,7 @@ curl_retrieve()
 			
 				1)
 					# look for folded lines
-					case "$core_variable_firstCharacter" in
+					case "$(core_variable_firstCharacter "$headerLine")" in
 						
 						# End of headers (empty line)
 						'')
