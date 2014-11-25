@@ -204,4 +204,5 @@ Iterates over header fields after a call to `curl_http()`, calling each callback
 [jsonwriter]: https://github.com/shellfire-dev/jsonwriter "jsonwriter shellfire module homepage"
 [jsonreader]: https://github.com/shellfire-dev/jsonreader "jsonreader shellfire module homepage"
 [urlencode]: https://github.com/shellfire-dev/urlencode "urlencode shellfire module homepage"
+[unicode]: https://github.com/shellfire-dev/unicode "unicode shellfire module homepage"
 [version]: https://github.com/shellfire-dev/version "version shellfire module homepage"
