@@ -51,6 +51,8 @@ You may need to change the url `https://github.com/shellfire-dev/curl.git` above
 
 You will also need to add paths - include the module [paths.d].
 
+You will also need to import the [version] module.
+
 
 ## Namespace `curl`
 
@@ -202,3 +204,4 @@ Iterates over header fields after a call to `curl_http()`, calling each callback
 [jsonwriter]: https://github.com/shellfire-dev/jsonwriter "jsonwriter shellfire module homepage"
 [jsonreader]: https://github.com/shellfire-dev/jsonwriter "jsonreader shellfire module homepage"
 [urlencode]: https://github.com/shellfire-dev/jsonwriter "urlencode shellfire module homepage"
+[version]: https://github.com/shellfire-dev/version "version shellfire module homepage"
