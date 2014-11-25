@@ -202,6 +202,6 @@ Iterates over header fields after a call to `curl_http()`, calling each callback
 [paths.d]: https://github.com/shellfire-dev/paths.d "paths.d shellfire module homepage"
 [github api]: https://github.com/shellfire-dev/github "github shellfire module homepage"
 [jsonwriter]: https://github.com/shellfire-dev/jsonwriter "jsonwriter shellfire module homepage"
-[jsonreader]: https://github.com/shellfire-dev/jsonwriter "jsonreader shellfire module homepage"
-[urlencode]: https://github.com/shellfire-dev/jsonwriter "urlencode shellfire module homepage"
+[jsonreader]: https://github.com/shellfire-dev/jsonreader "jsonreader shellfire module homepage"
+[urlencode]: https://github.com/shellfire-dev/urlencode "urlencode shellfire module homepage"
 [version]: https://github.com/shellfire-dev/version "version shellfire module homepage"
