@@ -34,10 +34,13 @@ curl_http()
 	local outputFilePath="$5"
 	
 	shift 5
-			
+	
 	if core_variable_isUnset curl_secureUrlFilePath; then
 		_curl_initialise 'shellfire'
 	fi
+	
+	# Defensive measure to ensure that it is always set, even if curl fails catastrophically (eg exit code 51, SSL certificate mismatch), with a value that can never be a HTTP exit code
+	curl_httpStatusCode=-1
 	
 	local options
 	local options_initialised
@@ -196,12 +199,16 @@ curl_http()
 	
 	set +e
 	core_variable_array_passToFunctionAsArguments options curl 1>"$curl_stdoutFilePath"
-	set -e
 	# Worse than a 404 or even a 5xx; something terrible has happened (eg broken TCP connection after retries)
 	local curl_exitCode=$?
+	set -e
 	
 	# http://curl.haxx.se/libcurl/c/libcurl-errors.html
 	if [ $curl_exitCode -ne 0 ]; then
+		
+		if core_variable_isFalse curl_failHard; then
+			return $curl_exitCode
+		fi
 	
 		case $curl_exitCode in
 		
@@ -376,6 +383,10 @@ _curl_initialise()
 	
 	if core_variable_isUnset curl_retryMaximumDelay; then
 		curl_retryMaximumDelay=30
+	fi
+
+	if core_variable_isUnset curl_failHard; then
+		curl_failHard=1
 	fi
 
 	_curl_CR="$(printf '\r')"

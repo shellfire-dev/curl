@@ -134,6 +134,7 @@ Also, there are several global settings that can be overridden per-call (by usin
 |`curl_retries`|Maximum retries|10|
 |`curl_retryDelay`|Delay in seconds between retries|0|
 |`curl_retryMaximumDelay`|Maximum delay in seconds between retries|0|
+|`curl_failHard`|Boolean. If true, then a non-zero curl exit code causes the application to exit|false|
 
 Where necessary, older versions of `curl` are detected and settings that won't work are not used.
 
