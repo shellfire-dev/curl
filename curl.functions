@@ -96,6 +96,10 @@ curl_http()
 	
 	core_variable_array_append options --tlsv1
 	
+	if core_variable_isTrue "$curl_makeTlsInsecure"; then
+		core_variable_array_append options --insecure
+	fi
+	
 	# Uses HTTP Date header if available to set the timestamp of any downloaded file
 	core_variable_array_append options --remote-time
 
@@ -427,6 +431,15 @@ _curl_initialise()
 		curl_supportsNetrc='yes'
 	else
 		curl_supportsNetrc='no'
+	fi
+	
+	# This is the exact version in CentOS 6
+	# Versions in CentOS 5 seem to suffer from a problem with subjectAltName certs
+	if version_isGreaterThanOrEqualTo "$curlVersion" 7.19.7; then
+		core_message WARN "Making curl TLS connections insecure by default because you're running an antique version of curl. Override by setting curl_makeTlsInsecure=no"
+		curl_makeTlsInsecure='yes'
+	else
+		curl_makeTlsInsecure='no'
 	fi
 	
 	if version_isGreaterThanOrEqualTo "$curlVersion" 7.12.3; then
