@@ -427,25 +427,32 @@ _curl_initialise()
 	
 	local curlVersion="$(curl --version)"
 	
-	if version_isGreaterThanOrEqualTo "$curlVersion" 7.21.5; then
-		curl_supportsNetrc='yes'
-	else
-		curl_supportsNetrc='no'
+
+	if core_variable_isUnset curl_supportsNetrc; then
+		if version_isGreaterThanOrEqualTo "$curlVersion" 7.21.5; then
+			curl_supportsNetrc='yes'
+		else
+			curl_supportsNetrc='no'
+		fi
 	fi
 	
 	# This is the exact version in CentOS 6
 	# Versions in CentOS 5 seem to suffer from a problem with subjectAltName certs
-	if version_isGreaterThanOrEqualTo "$curlVersion" 7.19.7; then
-		core_message WARN "Making curl TLS connections insecure by default because you're running an antique version of curl. Override by setting curl_makeTlsInsecure=no"
-		curl_makeTlsInsecure='yes'
-	else
-		curl_makeTlsInsecure='no'
+	if core_variable_isUnset curl_makeTlsInsecure; then
+		if version_isGreaterThanOrEqualTo "$curlVersion" 7.19.7; then
+			core_message WARN "Making curl TLS connections insecure by default because you're running an antique version of curl. Override by setting curl_makeTlsInsecure=no"
+			curl_makeTlsInsecure='yes'
+		else
+			curl_makeTlsInsecure='no'
+		fi
 	fi
-	
-	if version_isGreaterThanOrEqualTo "$curlVersion" 7.12.3; then
-		curl_supportsRetries='yes'
-	else
-		curl_supportsRetries='no'
+
+	if core_variable_isUnset curl_supportsRetries; then
+		if version_isGreaterThanOrEqualTo "$curlVersion" 7.12.3; then
+			curl_supportsRetries='yes'
+		else
+			curl_supportsRetries='no'
+		fi
 	fi
 }
 
