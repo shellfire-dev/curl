@@ -35,7 +35,7 @@ curl_http()
 	
 	shift 5
 	
-	if core_variable_isUnset curl_secureUrlFilePath; then
+	if core_variable_isUnset _curl_initialised; then
 		_curl_initialise 'shellfire'
 	fi
 	
@@ -400,25 +400,37 @@ _curl_initialise()
 	local TMP_FILE
 	
 	# Used to pass sensitive URLs and Headers (eg those containing passwords) that should not be leaked to the command-line (eg those containing sensitive tokens - GitHub's API is an example of this)
-	core_temporaryFiles_newFileToRemoveOnExit
-	curl_secureParametersFilePath="$TMP_FILE"
-		
-	core_temporaryFiles_newFileToRemoveOnExit
-	curl_outputHeadersFilePath="$TMP_FILE"
+	if core_variable_isUnset curl_secureParametersFilePath; then
+		core_temporaryFiles_newFileToRemoveOnExit
+		curl_secureParametersFilePath="$TMP_FILE"
+	fi
+
+	if core_variable_isUnset curl_outputHeadersFilePath; then
+		core_temporaryFiles_newFileToRemoveOnExit
+		curl_outputHeadersFilePath="$TMP_FILE"
+	fi
 	
-	core_temporaryFiles_newFileToRemoveOnExit
-	curl_parsedHeadersFilePath="$TMP_FILE"
+	if core_variable_isUnset curl_parsedHeadersFilePath; then
+		core_temporaryFiles_newFileToRemoveOnExit
+		curl_parsedHeadersFilePath="$TMP_FILE"
+	fi
 	
-	core_temporaryFiles_newFileToRemoveOnExit
-	curl_stdoutFilePath="$TMP_FILE"
+	if core_variable_isUnset curl_stdoutFilePath; then
+		core_temporaryFiles_newFileToRemoveOnExit
+		curl_stdoutFilePath="$TMP_FILE"
+	fi
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
-		
-		core_temporaryFiles_newFileToRemoveOnExit
-		curl_stderrFilePath="$TMP_FILE"
-		
-		core_temporaryFiles_newFileToRemoveOnExit
-		curl_traceAsciiFilePath="$TMP_FILE"
+	
+		if core_variable_isUnset curl_stderrFilePath; then
+			core_temporaryFiles_newFileToRemoveOnExit
+			curl_stderrFilePath="$TMP_FILE"
+		fi
+	
+		if core_variable_isUnset curl_traceAsciiFilePath; then
+			core_temporaryFiles_newFileToRemoveOnExit
+			curl_traceAsciiFilePath="$TMP_FILE"
+		fi
 		
 	fi
 	
@@ -427,7 +439,6 @@ _curl_initialise()
 	
 	local curlVersion="$(curl --version)"
 	
-
 	if core_variable_isUnset curl_supportsNetrc; then
 		if version_isGreaterThanOrEqualTo "$curlVersion" 7.21.5; then
 			curl_supportsNetrc='yes'
@@ -454,6 +465,8 @@ _curl_initialise()
 			curl_supportsRetries='no'
 		fi
 	fi
+	
+	_curl_initialised='yes'
 }
 
 # Switch can be specified multiple times, last one wins
