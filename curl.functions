@@ -155,7 +155,7 @@ curl_http()
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
 		core_variable_array_append options --stderr "$curl_stderrFilePath"
-		core_variable_array_append options --write-out '%{http_code}\t%{url_effective}\t%{ssl_verify_result}\t%{time_total}\t%{size_download}\t%{speed_download}\t%{num_redirects}\n'
+		core_variable_array_append options --write-out '%{http_code}\t%{url_effective}\t%{time_total}\t%{size_download}\t%{speed_download}\t%{num_redirects}\n'
 	
 		if [ "$(core_init_verbosity)" -gt 2 ]; then
 			core_variable_array_append options --trace-time --trace-ascii "$curl_traceAsciiFilePath"
