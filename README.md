@@ -8,6 +8,10 @@ Headers are set to sensible defaults wherever possible, but can be overridden as
 
 Settings are automatically adjusted when older versions of `curl` are detected (eg on CentOS 6.5).
 
+## Compatibility
+
+* Tag [`release_2015.0117.1750-1`](https://github.com/shellfire-dev/curl/releases/tag/release_2015.0117.1750-1) is compatible with [shellfire] release [`release_2015.0117.1750-1`](https://github.com/shellfire-dev/shellfire/releases/tag/release_2015.0117.1750-1).
+
 ## Overview
 
 The main function to use is `curl_http()`. For example, to google's home page to standard out (`-`) with no user:-
