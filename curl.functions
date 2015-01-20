@@ -437,7 +437,7 @@ _curl_initialise()
 	# Curl versioning determines specific features
 	# CentOS 5 and 6 are still in widespread use, and use archaic curl versions
 	
-	local curlVersion="$(curl --version)"
+	local curlVersion="$(curl --version | awk -F ' ' 'NR==1 {print $2}')"
 	
 	if core_variable_isUnset curl_supportsNetrc; then
 		if version_isGreaterThanOrEqualTo "$curlVersion" 7.21.5; then
@@ -451,10 +451,10 @@ _curl_initialise()
 	# Versions in CentOS 5 seem to suffer from a problem with subjectAltName certs
 	if core_variable_isUnset curl_makeTlsInsecure; then
 		if version_isGreaterThanOrEqualTo "$curlVersion" 7.19.7; then
+			curl_makeTlsInsecure='no'
+		else
 			core_message WARN "Making curl TLS connections insecure by default because you're running an antique version of curl. Override by setting curl_makeTlsInsecure=no"
 			curl_makeTlsInsecure='yes'
-		else
-			curl_makeTlsInsecure='no'
 		fi
 	fi
 
