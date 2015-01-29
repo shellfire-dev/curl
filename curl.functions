@@ -20,10 +20,11 @@ core_usesIn urlencode
 core_dependency_requires '*' curl cat
 curl_http()
 {
-	# Use 'user:password' for Basic Auth.  Specify just 'user' for password prompting with Basic Auth. Use 'token:x-oauth-basic' for OAuth authentication. Use ':' for NTLM (--ntlm) or Kerberos5 (--negotiate).
-	# Use '' for no authentication, or to use authentication via .netrc
+	# Use 'none' for none
 	local authentication="$1"
 	
+	# Use 'user:password' for Basic Auth.  Specify just 'user' for password prompting with Basic Auth. Use 'token:x-oauth-basic' for OAuth authentication. Use ':' for NTLM (--ntlm) or Kerberos5 (--negotiate).
+	# Use '' for no authentication, or to use authentication via .netrc
 	local credentials="$2"
 	
 	local verb="$3"
@@ -170,8 +171,8 @@ curl_http()
 		case "$authentication" in
 			
 			none)
-				if [ -n "$user" ]; then
-					core_exitError $core_commandLine_exitCode_SOFTWARE "Don't specify an user with authentication 'none'"
+				if [ -n "$credentials" ]; then
+					core_exitError $core_commandLine_exitCode_SOFTWARE "Don't specify credentials with authentication 'none'"
 				fi
 			;;
 			
