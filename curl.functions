@@ -147,6 +147,13 @@ curl_http()
 			core_variable_array_append options --continue-at "$curl_continueAt"
 		fi
 	fi
+
+	# Netscape cookie file format
+	if core_variable_isSet curl_cookieJar; then
+		if [ -n "$curl_cookieJar" ]; then
+			core_variable_array_append options --cookie-jar "$curl_cookieJar"
+		fi
+	fi
 	
 	core_variable_array_append options --referer ';auto'
 	
