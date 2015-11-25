@@ -152,7 +152,7 @@ The function will search for a `.netrc` file (useful for specifying passwords ou
 * `${HOME}/shellfire.netrc`
 * `${HOME}/${_program_name}.netrc`
 
-\* Not done on CentOS 6.5 and CentOS 5 because they use a very old version of `curl`. Instead only `~/.netrc` is used if present.
+\* Not done on CentOS 6.5 and CentOS 5 because they use a very old version of `curl`. Instead only `$HOME/.netrc` is used if present.
 † Actually, whatever path has been set inside the program for `/etc` - such as `/usr/local/etc`.
 
 ##### Using `.curlrc`
