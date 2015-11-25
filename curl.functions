@@ -43,22 +43,22 @@ curl_http()
 	# Defensive measure to ensure that it is always set, even if curl fails catastrophically (eg exit code 51, SSL certificate mismatch), with a value that can never be a HTTP exit code
 	curl_httpStatusCode=-1
 	
-	local options
-	local options_initialised
-	core_variable_array_initialise options
+	local curlOptions
+	local curlOptions_initialised
+	core_variable_array_initialise curlOptions
 	
 	# Prevent default configuration from being loaded
 	core_variable_array_append -q
 	
-	core_variable_array_append options --user-agent "$curl_userAgent"
+	core_variable_array_append curlOptions --user-agent "$curl_userAgent"
 	
 	if core_variable_isTrue "$curl_supportsRetries"; then
-		core_variable_array_append options --retry "$curl_retries"
-		core_variable_array_append options --retry-delay "$curl_retryDelay"
-		core_variable_array_append options --retry-max-time "$curl_retryMaximumDelay"
+		core_variable_array_append curlOptions --retry "$curl_retries"
+		core_variable_array_append curlOptions --retry-delay "$curl_retryDelay"
+		core_variable_array_append curlOptions --retry-max-time "$curl_retryMaximumDelay"
 	fi
 	
-	core_variable_array_append options --compressed
+	core_variable_array_append curlOptions --compressed
 	
 	if core_variable_isTrue "$curl_supportsNetrc"; then
 		
@@ -70,12 +70,12 @@ curl_http()
 		_curl_changeNetrcLocation HOME ."$core_libraryName".netrc
 		_curl_changeNetrcLocation HOME ."$_program_name".netrc
 		if [ -n "$_curl_changeNetrcLocation_curlrcFile" ]; then
-			core_variable_array_append options --netrc-file "$_curl_changeNetrcLocation_curlrcFile"
+			core_variable_array_append curlOptions --netrc-file "$_curl_changeNetrcLocation_curlrcFile"
 		fi
 		
 	elif core_path_isReadableNonEmptyFilePath "$HOME"/.netrc; then
 		
-		core_variable_array_append options --netrc
+		core_variable_array_append curlOptions --netrc
 		
 	fi
 
@@ -87,24 +87,24 @@ curl_http()
 	_curl_appendConfigFileIfExtant HOME ."$_program_name".curlrc
 	
 	# Script-friendly output
-	core_variable_array_append options --silent --show-error
+	core_variable_array_append curlOptions --silent --show-error
 	
-	core_variable_array_append options --location
+	core_variable_array_append curlOptions --location
 	
-	core_variable_array_append options --location-trusted
+	core_variable_array_append curlOptions --location-trusted
 	
-	core_variable_array_append options --max-redirs "$curl_maximumRedirects"
+	core_variable_array_append curlOptions --max-redirs "$curl_maximumRedirects"
 	
-	core_variable_array_append options --tlsv1
+	core_variable_array_append curlOptions --tlsv1
 	
 	if core_variable_isTrue "$curl_makeTlsInsecure"; then
-		core_variable_array_append options --insecure
+		core_variable_array_append curlOptions --insecure
 	fi
 	
 	# Uses HTTP Date header if available to set the timestamp of any downloaded file
-	core_variable_array_append options --remote-time
+	core_variable_array_append curlOptions --remote-time
 
-	core_variable_array_append options --request "$verb"
+	core_variable_array_append curlOptions --request "$verb"
 	
 	case "$verb" in
 		
@@ -113,19 +113,19 @@ curl_http()
 		;;
 		
 		POST)
-			core_variable_array_append options --data-binary @"$curl_uploadFile"
+			core_variable_array_append curlOptions --data-binary @"$curl_uploadFile"
 		;;
 		
 		PATCH)
-			core_variable_array_append options --data-binary @"$curl_uploadFile"
+			core_variable_array_append curlOptions --data-binary @"$curl_uploadFile"
 		;;
 		
 		PUT)
-			core_variable_array_append options --upload-file "$curl_uploadFile"
+			core_variable_array_append curlOptions --upload-file "$curl_uploadFile"
 		;;
 		
 		DELETE)
-			core_variable_array_append options --request DELETE
+			core_variable_array_append curlOptions --request DELETE
 		;;
 		
 		*)
@@ -137,36 +137,36 @@ curl_http()
 	# Range is valid for any HTTP verb, although it is used almost exclusively with GET
 	if core_variable_isSet curl_range; then
 		if [ -n "$curl_range" ]; then
-			core_variable_array_append options --range "$curl_range"
+			core_variable_array_append curlOptions --range "$curl_range"
 		fi
 	fi
 	
 	# Continue-At is valid for any HTTP verb, although it is used mostly with PUT and less commonly with POST and PATCH
 	if core_variable_isSet curl_continueAt; then
 		if [ -n "$curl_continueAt" ]; then
-			core_variable_array_append options --continue-at "$curl_continueAt"
+			core_variable_array_append curlOptions --continue-at "$curl_continueAt"
 		fi
 	fi
 
 	# Netscape cookie file format
 	if core_variable_isSet curl_cookieJar; then
 		if [ -n "$curl_cookieJar" ]; then
-			core_variable_array_append options --cookie-jar "$curl_cookieJar"
+			core_variable_array_append curlOptions --cookie-jar "$curl_cookieJar"
 		fi
 	fi
 	
-	core_variable_array_append options --referer ';auto'
+	core_variable_array_append curlOptions --referer ';auto'
 	
-	core_variable_array_append options --output "$outputFilePath"
+	core_variable_array_append curlOptions --output "$outputFilePath"
 	
-	core_variable_array_append options --dump-header "$curl_outputHeadersFilePath"
+	core_variable_array_append curlOptions --dump-header "$curl_outputHeadersFilePath"
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
-		core_variable_array_append options --stderr "$curl_stderrFilePath"
-		core_variable_array_append options --write-out '%{http_code}\t%{url_effective}\t%{time_total}\t%{size_download}\t%{speed_download}\t%{num_redirects}\n'
+		core_variable_array_append curlOptions --stderr "$curl_stderrFilePath"
+		core_variable_array_append curlOptions --write-out '%{http_code}\t%{url_effective}\t%{time_total}\t%{size_download}\t%{speed_download}\t%{num_redirects}\n'
 	
 		if [ "$(core_init_verbosity)" -gt 2 ]; then
-			core_variable_array_append options --trace-time --trace-ascii "$curl_traceAsciiFilePath"
+			core_variable_array_append curlOptions --trace-time --trace-ascii "$curl_traceAsciiFilePath"
 		fi
 	fi
 	
@@ -207,10 +207,10 @@ curl_http()
 			fi
 		done
 	}>"$curl_secureParametersFilePath"
-	core_variable_array_append options --config "$curl_secureParametersFilePath"
+	core_variable_array_append curlOptions --config "$curl_secureParametersFilePath"
 	
 	set +e
-	core_variable_array_passToFunctionAsArguments options curl 1>"$curl_stdoutFilePath"
+	core_variable_array_passToFunctionAsArguments curlOptions curl 1>"$curl_stdoutFilePath"
 	# Worse than a 404 or even a 5xx; something terrible has happened (eg broken TCP connection after retries)
 	local curl_exitCode=$?
 	set -e
