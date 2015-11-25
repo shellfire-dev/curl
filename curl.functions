@@ -266,8 +266,9 @@ curl_http()
 	
 	if [ "$(core_init_verbosity)" -gt 1 ]; then
 		{
-			core_message INFO "curl write-out: $(<"$curl_stdoutFilePath")"
-			core_message INFO "curl stderr (usually empty): $(<"$curl_stderrFilePath")"
+			# "$(<FILE)" doesn't work in all situations
+			core_message INFO "curl write-out: $(cat "$curl_stdoutFilePath")"
+			core_message INFO "curl stderr (usually empty): $(cat "$curl_stderrFilePath")"
 	
 			if [ "$(core_init_verbosity)" -gt 2 ]; then
 				printf '%s\n' "ascii-trace:-"
