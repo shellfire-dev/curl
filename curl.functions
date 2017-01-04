@@ -48,7 +48,7 @@ curl_http()
 	core_variable_array_initialise curlOptions
 	
 	# Prevent default configuration from being loaded
-	core_variable_array_append -q
+	core_variable_array_append curlOptions -q
 	
 	core_variable_array_append curlOptions --user-agent "$curl_userAgent"
 	
